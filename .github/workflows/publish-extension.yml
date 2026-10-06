@@ -1,0 +1,61 @@
+name: Publish Chrome AT extension
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'publish/latest.json'
+      - '.github/workflows/publish-extension.yml'
+permissions:
+  contents: write
+concurrency:
+  group: publish-extension
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Download and verify tested package
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/contents/publish/latest.json?ref=$GITHUB_SHA" > metadata-response.json
+          python3 - <<'PY'
+          import json,base64,pathlib,os
+          response=json.loads(pathlib.Path('metadata-response.json').read_text())
+          metadata=json.loads(base64.b64decode(response['content']))
+          pathlib.Path('metadata.json').write_text(json.dumps(metadata,ensure_ascii=False))
+          with open(os.environ['GITHUB_ENV'],'a') as out:
+              out.write('VERSION='+metadata['version']+'\n')
+              out.write('ZIP_BLOB_SHA='+metadata['zip_blob_sha']+'\n')
+          pathlib.Path('release-notes.md').write_text(metadata['notes'])
+          PY
+          gh api "repos/$GITHUB_REPOSITORY/git/blobs/$ZIP_BLOB_SHA" > blob-response.json
+          python3 - <<'PY'
+          import json,base64,pathlib,hashlib,zipfile,subprocess
+          metadata=json.loads(pathlib.Path('metadata.json').read_text())
+          response=json.loads(pathlib.Path('blob-response.json').read_text())
+          data=base64.b64decode(response['content'])
+          assert len(data)==metadata['size']
+          assert hashlib.sha256(data).hexdigest()==metadata['sha256']
+          pathlib.Path('auditoria-hits-extension.zip').write_bytes(data)
+          with zipfile.ZipFile('auditoria-hits-extension.zip') as z:
+              assert z.testzip() is None
+              manifest=json.loads(z.read('manifest.json'))
+              assert manifest['version']==metadata['version']
+              assert 'activeTab' in manifest['permissions']
+              for name in ['dist/evidence.js','dist/contentEvidence.js']:
+                  assert name in z.namelist()
+              assert not any(name.startswith(('supabase/','test/')) for name in z.namelist())
+              z.extractall('package')
+          for script in pathlib.Path('package/dist').rglob('*.js'):
+              subprocess.check_call(['node','--check',str(script)])
+          print('Package integrity and JavaScript syntax verified.')
+          PY
+      - name: Publish stable download
+        shell: bash
+        run: |
+          set -euo pipefail
+          TITLE="$(python3 -c 'import json; print(json.load(open("metadata.json"))["title"])')"
+          gh release create "v$VERSION" auditoria-hits-extension.zip --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "$TITLE" --notes-file release-notes.md --latest
