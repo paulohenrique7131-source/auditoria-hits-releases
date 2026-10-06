@@ -31,6 +31,7 @@ jobs:
               out.write('ZIP_BLOB_SHA='+metadata['zip_blob_sha']+'\n')
           pathlib.Path('release-notes.md').write_text(metadata['notes'])
           PY
+          ZIP_BLOB_SHA="$(python3 -c 'import json; print(json.load(open("metadata.json"))["zip_blob_sha"])')"
           gh api "repos/$GITHUB_REPOSITORY/git/blobs/$ZIP_BLOB_SHA" > blob-response.json
           python3 - <<'PY'
           import json,base64,pathlib,hashlib,zipfile,subprocess
