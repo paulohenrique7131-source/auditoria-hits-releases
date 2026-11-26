@@ -46,7 +46,7 @@ jobs:
               manifest=json.loads(z.read('manifest.json'))
               assert manifest['version']==metadata['version']
               assert 'activeTab' in manifest['permissions']
-              for name in ['dist/evidence.js','dist/contentEvidence.js']:
+              for name in ['dist/evidence/evidence.js','dist/evidence/contentEvidence.js']:
                   assert name in z.namelist()
               assert not any(name.startswith(('supabase/','test/')) for name in z.namelist())
               z.extractall('package')

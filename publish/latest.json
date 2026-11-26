@@ -1,9 +1,9 @@
 {
-  "version": "1.7.5",
-  "zip_blob_sha": "21353925ead19ad3865e9a30251e8d529d4970d3",
-  "sha256": "17080295f108994399e5199d5392ec001de0c914846e983d98cfd93d558173f6",
-  "size": 397807,
-  "title": "Chrome AT 1.7.5 — exportação completa para o GPT",
-  "source_commit": "9e867a80ca30e12c05b9fdafea73ba97f01c61ca",
-  "notes": "Exportação completa da rodada automática para auditoria posterior no GPT.\n\n- OBS completas, linhas e campos originais do fólio, respostas capturadas do HITS, reserva lida, entradas e resultados do motor e tarifário.\n- Prints das áreas roláveis, vinculados à reserva exata; falhas e dados ausentes ficam explícitos.\n- Textos divididos sem perda em até 160 KiB; ZIPs independentes com alvo de 12 MiB, índice, hashes, regras e prompt.\n- Ative “Pacote para auditar no GPT” na central automática. Os dados permanecem locais, sem envio automático ao GPT.\n- Atualize sobre a mesma pasta, recarregue a extensão e dê F5 no HITS. Não desinstale.\n\nValidação: 12 testes novos, Chromium/IndexedDB/exportação real e comparação integral com a base 1.7.4. As regras do motor foram preservadas. Nenhum backend foi modificado; a checagem Deno antiga não terminou por bloqueio de acesso à dependência externa.\n\nCódigo: https://github.com/paulohenrique7131-source/auditoria-hits-extension/tree/master/gpt-export\nSHA-256: 17080295f108994399e5199d5392ec001de0c914846e983d98cfd93d558173f6"
+  "version": "1.12.5",
+  "zip_blob_sha": "33b59b74a14ff8d0f2d42d33640ffc41677466b1",
+  "sha256": "ca12b8db19f1cdf5bff4de36a02397c9f08d83551d8d49aa735d845a6e703a7a",
+  "size": 503339,
+  "title": "Chrome AT 1.12.5",
+  "source_commit": "a08dace2d3de09fb8d064ccc06011409c0e6a5db",
+  "notes": "Chrome AT 1.12.5\n\n- Relato #24: quando a automática não começa por causa de \"A lista Ocupados não está completa\", a mensagem agora diz o motivo (ex.: \"Foram lidos 56 de 57 registros exibidos pelo HITS.\", lista filtrada ou total do HITS não lido). Se alguma linha da lista não tiver a UH reconhecida, a mensagem diz quantas.\n- A conferência da lista continua igual: a automática só roda com a lista Ocupados completa.\n- Se a mensagem aparecer, mande um print dela pelo 🚩 para a correção ser feita no ponto certo.\n- Motor e regras de auditoria não mudaram.\n\nAtualize na mesma pasta e clique em recarregar em chrome://extensions. Não desinstale.\n"
 }
